@@ -5,6 +5,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
+import numpy as np
 
 
 headers = { 'X-Auth-Token': 'bb8615aa6f3541c89c59790cbbc41be6' }
@@ -14,7 +15,7 @@ st.title('World Football Leagues Dashboard')
 st.sidebar.title('Widget Section')
 
 apilink = '[Football Data](https://www.football-data.org/)'
-githublink = '[GitHub Repo]()'
+githublink = '[GitHub Repo](https://github.com/himanshu004/World-Football-Leagues-Dashboard)'
 with st.sidebar.beta_expander('About the project'):
     st.write('The idea behind this project was motivated by my love for football and curiosity for stats. This project uses RESTful API provided by ',apilink,' which provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.')
     st.write('Want to contribute?',githublink)
@@ -31,11 +32,12 @@ data = fetch_data1()
 
 area_dict = {}
 comp_dict = {}
-for i in range(150):
+for i in range(len(data['competitions'])):
     area_dict[data['competitions'][i]['area']['name']] = 0
     comp_dict[data['competitions'][i]['name']] = 0
 
-for i in range(150):
+
+for i in range(len(data['competitions'])):
     area_dict[data['competitions'][i]['area']['name']] += 1
     comp_dict[data['competitions'][i]['name']] += 1
 
@@ -60,9 +62,12 @@ show_comp_stats = st.sidebar.checkbox('Country Wise Distribution',key = 1)
 
 if(show_comp_stats):
     st.header('Number Of Competitions Per Country:')
+    space = '\n'
+    st.write(space)
     chosen_nations = st.sidebar.multiselect('Choose Country',area_df['Country Name'],key = 1)
     sub_area_df = area_df[area_df['Country Name'].isin(chosen_nations)]
     st.write(sub_area_df)
+    st.write(space)
     if(sub_area_df.shape[0] != 0):
         sns.set_style('whitegrid')
         params = {'legend.fontsize': 18,
@@ -77,5 +82,24 @@ if(show_comp_stats):
         ax = sns.barplot(data = sub_area_df,x = 'Country Name',y = 'Count')
         if(len(sub_area_df) > 5):
             plt.xticks(rotation = 60)
+        if(len(sub_area_df) > 10):
+            plt.xticks(rotation = 90)
         sns.despine(left = True)
         st.pyplot(fig)  
+
+show_leagues_per_country = st.sidebar.checkbox('Football Leagues By Country',key = 2)
+
+if(show_leagues_per_country):
+    country = st.sidebar.selectbox('Choose Country',area_df['Country Name'],key = 2,)
+    write = country + '\'s football leagues: '
+    st.header(write)
+    st.write(space)
+    country_list = []
+    for i in range(len(data['competitions'])):
+        if(data['competitions'][i]['area']['name'] == country):
+            country_list.append(data['competitions'][i]['name'])
+    for i in range(len(country_list)):
+        st.subheader((country_list[i]))
+
+
+    
