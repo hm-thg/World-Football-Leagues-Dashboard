@@ -58,6 +58,9 @@ if(newwc):
     st.pyplot()
     newwc = False
 
+st.sidebar.header('General Stats:')
+st.sidebar.write('\n')
+
 show_comp_stats = st.sidebar.checkbox('Country Wise Distribution',key = 1)
 
 if(show_comp_stats):
@@ -87,19 +90,117 @@ if(show_comp_stats):
         sns.despine(left = True)
         st.pyplot(fig)  
 
-show_leagues_per_country = st.sidebar.checkbox('Football Leagues By Country',key = 2)
+show_leagues_per_continent = st.sidebar.checkbox('Football Leagues By Continent',key = 2)
+show_leagues_per_country = st.sidebar.checkbox('Football Leagues By Country',key = 3)
+
+continents = ['Europe','Asia','Africa','North America','South America','Australia']
+
+if(show_leagues_per_continent):
+    continent = st.sidebar.selectbox('Choose Continent',continents,key = 2,)
+    write = continent + '\'s football leagues: '
+    st.header(write)
+    space = '\n'
+    st.write(space)
+    leagues = []
+    for i in range(len(data['competitions'])):
+        if(data['competitions'][i]['area']['name'] == continent):
+            leagues.append(data['competitions'][i]['name'])
+    for i in range(len(leagues)):
+        st.subheader((leagues[i]))
+
 
 if(show_leagues_per_country):
-    country = st.sidebar.selectbox('Choose Country',area_df['Country Name'],key = 2,)
+    helper = list(area_df[~area_df['Country Name'].isin(continents)]['Country Name'])
+    country = st.sidebar.selectbox('Choose Country',helper,key = 3,)
     write = country + '\'s football leagues: '
     st.header(write)
+    space = '\n'
     st.write(space)
-    country_list = []
+    leagues = []
     for i in range(len(data['competitions'])):
         if(data['competitions'][i]['area']['name'] == country):
-            country_list.append(data['competitions'][i]['name'])
-    for i in range(len(country_list)):
-        st.subheader((country_list[i]))
+            leagues.append(data['competitions'][i]['name'])
+    for i in range(len(leagues)):
+        st.subheader((leagues[i]))
+    
+
+st.sidebar.header('Competitions Stats:')
+
+comp_dict = {}
+free_tier_list = ['Serie A','Premier','UEFA Champions','European','Ligue 1','Bundesliga','Eridivisie','Primeira Liga','Primera Division','FIFA World Cup']
+
+for i in range(len(data['competitions'])):
+    if(data['competitions'][i]['name'] not in free_tier_list):
+        continue
+    comp_dict[data['competitions'][i]['name']] = data['competitions'][i]['id']
+
+default = 'Select a Competition'
+options = [default]
+
+options = options + list(comp_dict.keys())
+svalue = st.sidebar.selectbox('',options,key = 4)
+
+#api request 2
+@st.cache(persist = True)
+def fetch_data2():
+    url = "http://api.football-data.org/v2/competitions/" + str(comp_dict[svalue]) + "/teams"
+    response = requests.request("GET", url, headers = headers,)
+    return response.json()
+
+if(svalue != default):
+    if(st.sidebar.checkbox('Team Info')):
+        st.title(svalue)   
+        data2 = fetch_data2()
+        st.subheader('Number of teams: ' + str(data2['count']))
+        col1, col2 = st.beta_columns(2)
+        if(len(data2['teams'])):
+            for i in range(len(data2['teams'])):
+                if(i % 2):
+                    col1.subheader(data2['teams'][i]['name'])
+                    if('address' in data2['teams'][i].keys()):
+                        col1.write('Address: ' + data2['teams'][i]['address'])
+                    if('phone' in data2['teams'][i].keys()):
+                        if(data2['teams'][i]['phone'] != None):
+                            col1.write('Phone: ' + (data2['teams'][i]['phone']))
+                    if('website' in data2['teams'][i].keys()):
+                        col1.write('Website: ' + data2['teams'][i]['website'])
+                    if('email' in data2['teams'][i].keys()):
+                        if(data2['teams'][i]['email'] != None):
+                            col1.write('Email: ' + data2['teams'][i]['email'])
+                    if('founded' in data2['teams'][i].keys()):
+                        col1.write('Founded in ' + str(data2['teams'][i]['founded']))
+                    if('venue' in data2['teams'][i].keys()):
+                        if(data2['teams'][i]['venue'] != None):
+                            col1.write('Venue: ' + data2['teams'][i]['venue'])
+                else:
+                    col2.subheader(data2['teams'][i]['name'])
+                    if('address' in data2['teams'][i].keys()):
+                        col2.write('Address: ' + data2['teams'][i]['address'])
+                    if('phone' in data2['teams'][i].keys()):
+                        if(data2['teams'][i]['phone'] != None):
+                            col2.write('Phone: ' + (data2['teams'][i]['phone']))
+                    if('website' in data2['teams'][i].keys()):
+                        col2.write('Website: ' + data2['teams'][i]['website'])
+                    if('email' in data2['teams'][i].keys()):
+                        if(data2['teams'][i]['email'] != None):
+                            col2.write('Email: ' + data2['teams'][i]['email'])
+                    if('founded' in data2['teams'][i].keys()):
+                        col2.write('Founded in ' + str(data2['teams'][i]['founded']))
+                    if('venue' in data2['teams'][i].keys()):
+                        if(data2['teams'][i]['venue'] != None):
+                            col2.write('Venue: ' + data2['teams'][i]['venue'])
+
+    if(st.sidebar.checkbox('Standings')):
+        pass
+
+    if(st.sidebar.checkbox('Scorers')):
+        pass
+
+
+
+
+st.sidebar.header('Player Stats:')
+
 
 
     
