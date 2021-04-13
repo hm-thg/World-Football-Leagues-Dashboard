@@ -194,8 +194,8 @@ if(svalue != default):
     if(st.sidebar.checkbox('Standings')):
         st.header('Standings: ')
         data2 = fetch_data2("standings")
-        type = st.sidebar.radio('',['Total','Home','Away'])
         if(svalue != 'FIFA World Cup'):
+            type = st.sidebar.radio('',['Total','Home','Away'])
             if(type == 'Total'):
                 df = pd.DataFrame()
                 for i in range(len(data2['standings'][0]['table'])):
@@ -245,12 +245,27 @@ if(svalue != default):
             df.columns = ['Team Name','Matches Played','Last 5 Matches','Won','Lost','Points','Goals For','Goals Against','Difference']
             df.index = range(1,len(df) + 1)
             st.table(df)
-
         else:
-            pass
-
-
-
+                for j in range(0,len(data2['standings']),3):
+                    df = pd.DataFrame()
+                    for i in range(len(data2['standings'][j]['table'])):
+                        list = []
+                        list.append(data2['standings'][j]['table'][i]['position']) 
+                        list.append(data2['standings'][j]['table'][i]['team']['name'])
+                        list.append(data2['standings'][j]['table'][i]['playedGames']) 
+                        list.append(data2['standings'][j]['table'][i]['form']) 
+                        list.append(data2['standings'][j]['table'][i]['won']) 
+                        list.append(data2['standings'][j]['table'][i]['lost']) 
+                        list.append(data2['standings'][j]['table'][i]['points']) 
+                        list.append(data2['standings'][j]['table'][i]['goalsFor']) 
+                        list.append(data2['standings'][j]['table'][i]['goalsAgainst']) 
+                        list.append(data2['standings'][j]['table'][i]['goalDifference'])
+                        df = df.append(pd.Series(list),ignore_index = True) 
+                    st.subheader(data2['standings'][j]['group'])
+                    df.drop([0],axis = 1,inplace = True)
+                    df.columns = ['Team Name','Matches Played','Last 5 Matches','Won','Lost','Points','Goals For','Goals Against','Difference']
+                    df.index = range(1,len(df) + 1)
+                    st.table(df)
     if(st.sidebar.checkbox('Scorers')):
         pass
 
