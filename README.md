@@ -6,8 +6,8 @@
 ##### 👉This project gets updated regularly. So feel free to contribute or suggest any improvisation/changes!🤘
 
 
-![Demo 1](one.gif)
+![Demo 1](gifs/one.gif)
 
 <br><br>
 
-![Demo 2](two.gif)
+![Demo 2](gifs/two.gif)
