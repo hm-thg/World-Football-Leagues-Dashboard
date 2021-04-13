@@ -142,17 +142,18 @@ svalue = st.sidebar.selectbox('',options,key = 4)
 
 #api request 2
 @st.cache(persist = True)
-def fetch_data2():
-    url = "http://api.football-data.org/v2/competitions/" + str(comp_dict[svalue]) + "/teams"
+def fetch_data2(param):
+    url = "http://api.football-data.org/v2/competitions/" + str(comp_dict[svalue]) + "/" + param
     response = requests.request("GET", url, headers = headers,)
     return response.json()
 
+
 if(svalue != default):
+    st.title(svalue)   
     if(st.sidebar.checkbox('Team Info')):
-        st.title(svalue)   
-        data2 = fetch_data2()
-        st.subheader('Number of teams: ' + str(data2['count']))
+        st.header('Number of teams: ' + str(data2['count']))
         col1, col2 = st.beta_columns(2)
+        data2 = fetch_data2("teams")
         if(len(data2['teams'])):
             for i in range(len(data2['teams'])):
                 if(i % 2):
@@ -191,7 +192,64 @@ if(svalue != default):
                             col2.write('Venue: ' + data2['teams'][i]['venue'])
 
     if(st.sidebar.checkbox('Standings')):
-        pass
+        st.header('Standings: ')
+        data2 = fetch_data2("standings")
+        type = st.sidebar.radio('',['Total','Home','Away'])
+        if(svalue != 'FIFA World Cup'):
+            if(type == 'Total'):
+                df = pd.DataFrame()
+                for i in range(len(data2['standings'][0]['table'])):
+                    list = []
+                    list.append(data2['standings'][0]['table'][i]['position']) 
+                    list.append(data2['standings'][0]['table'][i]['team']['name'])
+                    list.append(data2['standings'][0]['table'][i]['playedGames']) 
+                    list.append(data2['standings'][0]['table'][i]['form']) 
+                    list.append(data2['standings'][0]['table'][i]['won']) 
+                    list.append(data2['standings'][0]['table'][i]['lost']) 
+                    list.append(data2['standings'][0]['table'][i]['points']) 
+                    list.append(data2['standings'][0]['table'][i]['goalsFor']) 
+                    list.append(data2['standings'][0]['table'][i]['goalsAgainst']) 
+                    list.append(data2['standings'][0]['table'][i]['goalDifference'])
+                    df = df.append(pd.Series(list),ignore_index = True) 
+            elif(type == 'Home'):
+                df = pd.DataFrame()
+                for i in range(len(data2['standings'][1]['table'])):
+                    list = []
+                    list.append(data2['standings'][1]['table'][i]['position']) 
+                    list.append(data2['standings'][1]['table'][i]['team']['name'])
+                    list.append(data2['standings'][1]['table'][i]['playedGames']) 
+                    list.append(data2['standings'][1]['table'][i]['form']) 
+                    list.append(data2['standings'][1]['table'][i]['won']) 
+                    list.append(data2['standings'][1]['table'][i]['lost']) 
+                    list.append(data2['standings'][1]['table'][i]['points']) 
+                    list.append(data2['standings'][1]['table'][i]['goalsFor']) 
+                    list.append(data2['standings'][1]['table'][i]['goalsAgainst']) 
+                    list.append(data2['standings'][1]['table'][i]['goalDifference']) 
+                    df = df.append(pd.Series(list),ignore_index = True) 
+            else:
+                df = pd.DataFrame()
+                for i in range(len(data2['standings'][2]['table'])):
+                    list = []
+                    list.append(data2['standings'][2]['table'][i]['position']) 
+                    list.append(data2['standings'][2]['table'][i]['team']['name'])
+                    list.append(data2['standings'][2]['table'][i]['playedGames']) 
+                    list.append(data2['standings'][2]['table'][i]['form']) 
+                    list.append(data2['standings'][2]['table'][i]['won']) 
+                    list.append(data2['standings'][2]['table'][i]['lost']) 
+                    list.append(data2['standings'][2]['table'][i]['points']) 
+                    list.append(data2['standings'][2]['table'][i]['goalsFor']) 
+                    list.append(data2['standings'][2]['table'][i]['goalsAgainst']) 
+                    list.append(data2['standings'][2]['table'][i]['goalDifference']) 
+                    df = df.append(pd.Series(list),ignore_index = True) 
+            df.drop([0],axis = 1,inplace = True)
+            df.columns = ['Team Name','Matches Played','Last 5 Matches','Won','Lost','Points','Goals For','Goals Against','Difference']
+            df.index = range(1,len(df) + 1)
+            st.table(df)
+
+        else:
+            pass
+
+
 
     if(st.sidebar.checkbox('Scorers')):
         pass
