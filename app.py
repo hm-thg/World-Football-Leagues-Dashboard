@@ -151,9 +151,9 @@ def fetch_data2(param):
 if(svalue != default):
     st.title(svalue)   
     if(st.sidebar.checkbox('Team Info')):
+        data2 = fetch_data2("teams")
         st.header('Number of teams: ' + str(data2['count']))
         col1, col2 = st.beta_columns(2)
-        data2 = fetch_data2("teams")
         if(len(data2['teams'])):
             for i in range(len(data2['teams'])):
                 if(i % 2):
@@ -267,12 +267,23 @@ if(svalue != default):
                     df.index = range(1,len(df) + 1)
                     st.table(df)
     if(st.sidebar.checkbox('Scorers')):
-        pass
-
-
-
+        data2 = fetch_data2('scorers')
+        st.subheader('Top 10  Scorers:')
+        df = pd.DataFrame()
+        for i in range(len(data2['scorers'])):
+            list = []
+            list.append(data2['scorers'][i]['player']['name'])
+            list.append(data2['scorers'][i]['player']['nationality'])
+            list.append(data2['scorers'][i]['player']['position'])
+            list.append(data2['scorers'][i]['team']['name'])
+            list.append(data2['scorers'][i]['numberOfGoals'])
+            df = df.append(pd.Series(list),ignore_index = True)
+        df.index = range(1,len(df) + 1)
+        df.columns = ['Name','Nationality','Position','Team','Number of Goals']
+        st.table(df)
 
 st.sidebar.header('Player Stats:')
+st.sidebar.write('Coming soooon!!')
 
 
 

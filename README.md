@@ -3,7 +3,14 @@
 #### The idea behind this project was motivated by my love for football and curiosity for stats. This project uses RESTful API provided by [Football Data](https://www.football-data.org/) which provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.
 
 
-##### 👉This project gets updated regularly. So feel free to contribute or suggest any improvisation/changes!🤘
+#### 👉This project gets updated regularly. So feel free to contribute or suggest any improvisation/changes!🤘<br>
+
+#### To run this web app locally: 
+
+```shell
+streamlit run app.py
+```
+<br>
 
 
 ![Demo 1](gifs/one.gif)
