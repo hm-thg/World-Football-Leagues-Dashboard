@@ -8,10 +8,9 @@ from wordcloud import WordCloud, STOPWORDS
 import numpy as np
 
 githublink = '[GitHub Repo](https://github.com/himanshu004/World-Football-Leagues-Dashboard)'
-
 st.sidebar.write('Contribute here: ' + githublink)
-headers = { 'X-Auth-Token': 'bb8615aa6f3541c89c59790cbbc41be6' }
 
+headers = { 'X-Auth-Token': 'bb8615aa6f3541c89c59790cbbc41be6' }
 
 st.title('World Football Leagues Dashboard')
 st.sidebar.title('Widget Section')
@@ -25,7 +24,6 @@ with st.sidebar.beta_expander('About the project'):
 @st.cache(persist = True)
 def fetch_data1():
     url = "http://api.football-data.org/v2/competitions/"
-    # querystring = {'areas':[1,2]}
     response = requests.request("GET", url, headers = headers,)
     return response.json()
 
@@ -46,7 +44,7 @@ for i in range(len(data['competitions'])):
 area_df = pd.DataFrame(area_dict.items(), columns=['Country Name', 'Count'])
 comp_df = pd.DataFrame(comp_dict.items(), columns=['League Name','Count'])
 
-newwc = st.sidebar.button('New Wordcloud!',key = 1)
+newwc = st.sidebar.button('New Wordcloud!',key = 1,)
 newwc = True
 if(newwc):
     words = ' '.join(comp_df['League Name'])
@@ -57,7 +55,8 @@ if(newwc):
     plt.yticks([])
     sns.despine(left = True,bottom = True)
     st.pyplot()
-    newwc = False
+
+newwc = False
 
 st.sidebar.header('General Stats:')
 st.sidebar.write('\n')
@@ -65,13 +64,12 @@ st.sidebar.write('\n')
 show_comp_stats = st.sidebar.checkbox('Country Wise Distribution',key = 1)
 
 if(show_comp_stats):
-    st.header('Number Of Competitions Per Country:')
-    space = '\n'
-    st.write(space)
+    st.header('Number Of Competitions Per Country:\n')
     chosen_nations = st.sidebar.multiselect('Choose Country',area_df['Country Name'],key = 1)
-    sub_area_df = area_df[area_df['Country Name'].isin(chosen_nations)]
-    st.write(sub_area_df)
-    st.write(space)
+    sub_area_df = area_df[area_df['Country Name'].isin(chosen_nations)].reset_index().drop(['index'],axis = 1)
+    sub_area_df.index = range(1,len(sub_area_df) + 1)
+    st.table(sub_area_df)
+    st.write('\n')
     if(sub_area_df.shape[0] != 0):
         sns.set_style('whitegrid')
         params = {'legend.fontsize': 18,
