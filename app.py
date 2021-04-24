@@ -7,7 +7,9 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import numpy as np
 
+githublink = '[GitHub Repo](https://github.com/himanshu004/World-Football-Leagues-Dashboard)'
 
+st.sidebar.write('Contribute here: ' + githublink)
 headers = { 'X-Auth-Token': 'bb8615aa6f3541c89c59790cbbc41be6' }
 
 
@@ -15,7 +17,6 @@ st.title('World Football Leagues Dashboard')
 st.sidebar.title('Widget Section')
 
 apilink = '[Football Data](https://www.football-data.org/)'
-githublink = '[GitHub Repo](https://github.com/himanshu004/World-Football-Leagues-Dashboard)'
 with st.sidebar.beta_expander('About the project'):
     st.write('The idea behind this project was motivated by my love for football and curiosity for stats. This project uses RESTful API provided by ',apilink,' which provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.')
     st.write('Want to contribute?',githublink)
@@ -91,7 +92,6 @@ if(show_comp_stats):
         st.pyplot(fig)  
 
 show_leagues_per_continent = st.sidebar.checkbox('Football Leagues By Continent',key = 2)
-show_leagues_per_country = st.sidebar.checkbox('Football Leagues By Country',key = 3)
 
 continents = ['Europe','Asia','Africa','North America','South America','Australia']
 
@@ -108,6 +108,7 @@ if(show_leagues_per_continent):
     for i in range(len(leagues)):
         st.subheader((leagues[i]))
 
+show_leagues_per_country = st.sidebar.checkbox('Football Leagues By Country',key = 3)
 
 if(show_leagues_per_country):
     helper = list(area_df[~area_df['Country Name'].isin(continents)]['Country Name'])
@@ -284,6 +285,7 @@ if(svalue != default):
 
 st.sidebar.header('Player Stats:')
 st.sidebar.write('Coming soooon!!')
+
 
 
 
