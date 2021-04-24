@@ -93,34 +93,28 @@ show_leagues_per_continent = st.sidebar.checkbox('Football Leagues By Continent'
 
 continents = ['Europe','Asia','Africa','North America','South America','Australia']
 
-if(show_leagues_per_continent):
-    continent = st.sidebar.selectbox('Choose Continent',continents,key = 2,)
-    write = continent + '\'s football leagues: '
-    st.header(write)
-    space = '\n'
-    st.write(space)
+def leaguesDisplay(choice):
     leagues = []
     for i in range(len(data['competitions'])):
-        if(data['competitions'][i]['area']['name'] == continent):
+        if(data['competitions'][i]['area']['name'] == choice):
             leagues.append(data['competitions'][i]['name'])
     for i in range(len(leagues)):
         st.subheader((leagues[i]))
+
+if(show_leagues_per_continent):
+    choice = st.sidebar.selectbox('Choose Continent',continents,key = 2,)
+    write = choice + '\'s football leagues: '
+    st.header(write + '\n')
+    leaguesDisplay(choice)
 
 show_leagues_per_country = st.sidebar.checkbox('Football Leagues By Country',key = 3)
 
 if(show_leagues_per_country):
     helper = list(area_df[~area_df['Country Name'].isin(continents)]['Country Name'])
-    country = st.sidebar.selectbox('Choose Country',helper,key = 3,)
-    write = country + '\'s football leagues: '
-    st.header(write)
-    space = '\n'
-    st.write(space)
-    leagues = []
-    for i in range(len(data['competitions'])):
-        if(data['competitions'][i]['area']['name'] == country):
-            leagues.append(data['competitions'][i]['name'])
-    for i in range(len(leagues)):
-        st.subheader((leagues[i]))
+    choice = st.sidebar.selectbox('Choose Country',helper,key = 3,)
+    write = choice + '\'s football leagues: '
+    st.header(write + '\n')
+    leaguesDisplay(choice)
     
 
 st.sidebar.header('Competitions Stats:')
