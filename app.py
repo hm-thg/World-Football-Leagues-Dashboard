@@ -6,11 +6,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import numpy as np
+import modules as md
 
 githublink = '[GitHub Repo](https://github.com/himanshu004/World-Football-Leagues-Dashboard)'
 st.sidebar.write('Contribute here: ' + githublink)
-
-headers = { 'X-Auth-Token': 'bb8615aa6f3541c89c59790cbbc41be6' }
 
 st.title('World Football Leagues Dashboard')
 st.sidebar.title('Widget Section')
@@ -20,25 +19,18 @@ with st.sidebar.beta_expander('About the project'):
     st.write('The idea behind this project was motivated by my love for football and curiosity for stats. This project uses RESTful API provided by ',apilink,' which provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.')
     st.write('Want to contribute?',githublink)
 
-#api request 1
-@st.cache(persist = True)
-def fetch_data1():
-    url = "http://api.football-data.org/v2/competitions/"
-    response = requests.request("GET", url, headers = headers,)
-    return response.json()
-
-data = fetch_data1()
+data1 = md.fetch_data1()
 
 area_dict = {}
 comp_dict = {}
-for i in range(len(data['competitions'])):
-    area_dict[data['competitions'][i]['area']['name']] = 0
-    comp_dict[data['competitions'][i]['name']] = 0
+for i in range(len(data1['competitions'])):
+    area_dict[data1['competitions'][i]['area']['name']] = 0
+    comp_dict[data1['competitions'][i]['name']] = 0
 
 
-for i in range(len(data['competitions'])):
-    area_dict[data['competitions'][i]['area']['name']] += 1
-    comp_dict[data['competitions'][i]['name']] += 1
+for i in range(len(data1['competitions'])):
+    area_dict[data1['competitions'][i]['area']['name']] += 1
+    comp_dict[data1['competitions'][i]['name']] += 1
 
 
 area_df = pd.DataFrame(area_dict.items(), columns=['Country Name', 'Count'])
@@ -58,54 +50,48 @@ if(newwc):
 
 newwc = False
 
-st.sidebar.header('General Stats:')
-st.sidebar.write('\n')
+st.sidebar.header('General Stats:\n')
 
 show_comp_stats = st.sidebar.checkbox('Country Wise Distribution',key = 1)
 
 if(show_comp_stats):
     st.header('Number Of Competitions Per Country:\n')
     chosen_nations = st.sidebar.multiselect('Choose Country',area_df['Country Name'],key = 1)
-    sub_area_df = area_df[area_df['Country Name'].isin(chosen_nations)].reset_index().drop(['index'],axis = 1)
-    sub_area_df.index = range(1,len(sub_area_df) + 1)
-    st.table(sub_area_df)
-    st.write('\n')
-    if(sub_area_df.shape[0] != 0):
-        sns.set_style('whitegrid')
-        params = {'legend.fontsize': 18,
-            'figure.figsize': (20, 8),
-            'axes.labelsize': 22,
-            'axes.titlesize': 22,
-            'xtick.labelsize': 22,
-            'ytick.labelsize': 22,
-            'figure.titlesize': 22}
-        plt.rcParams.update(params)
-        fig, ax = plt.subplots() 
-        ax = sns.barplot(data = sub_area_df,x = 'Country Name',y = 'Count')
-        if(len(sub_area_df) > 5):
-            plt.xticks(rotation = 60)
-        if(len(sub_area_df) > 10):
-            plt.xticks(rotation = 90)
-        sns.despine(left = True)
-        st.pyplot(fig)  
+    if(len(chosen_nations) == 0):
+        st.write('Choose a country..')
+    else:    
+        sub_area_df = area_df[area_df['Country Name'].isin(chosen_nations)].reset_index().drop(['index'],axis = 1)
+        sub_area_df.index = range(1,len(sub_area_df) + 1)
+        st.table(sub_area_df)
+        st.write('\n')
+        if(sub_area_df.shape[0] != 0):
+            sns.set_style('whitegrid')
+            params = {'legend.fontsize': 18,
+                'figure.figsize': (20, 8),
+                'axes.labelsize': 22,
+                'axes.titlesize': 22,
+                'xtick.labelsize': 22,
+                'ytick.labelsize': 22,
+                'figure.titlesize': 22}
+            plt.rcParams.update(params)
+            fig, ax = plt.subplots() 
+            ax = sns.barplot(data = sub_area_df,x = 'Country Name',y = 'Count')
+            if(len(sub_area_df) > 5):
+                plt.xticks(rotation = 60)
+            if(len(sub_area_df) > 10):
+                plt.xticks(rotation = 90)
+            sns.despine(left = True)
+            st.pyplot(fig)  
 
 show_leagues_per_continent = st.sidebar.checkbox('Football Leagues By Continent',key = 2)
 
 continents = ['Europe','Asia','Africa','North America','South America','Australia']
 
-def leaguesDisplay(choice):
-    leagues = []
-    for i in range(len(data['competitions'])):
-        if(data['competitions'][i]['area']['name'] == choice):
-            leagues.append(data['competitions'][i]['name'])
-    for i in range(len(leagues)):
-        st.subheader((leagues[i]))
-
 if(show_leagues_per_continent):
     choice = st.sidebar.selectbox('Choose Continent',continents,key = 2,)
     write = choice + '\'s football leagues: '
     st.header(write + '\n')
-    leaguesDisplay(choice)
+    md.leaguesDisplay(choice,data1)
 
 show_leagues_per_country = st.sidebar.checkbox('Football Leagues By Country',key = 3)
 
@@ -114,7 +100,7 @@ if(show_leagues_per_country):
     choice = st.sidebar.selectbox('Choose Country',helper,key = 3,)
     write = choice + '\'s football leagues: '
     st.header(write + '\n')
-    leaguesDisplay(choice)
+    md.leaguesDisplay(choice,data1)
     
 
 st.sidebar.header('Competitions Stats:')
@@ -122,10 +108,10 @@ st.sidebar.header('Competitions Stats:')
 comp_dict = {}
 free_tier_list = ['Serie A','Premier','UEFA Champions','European','Ligue 1','Bundesliga','Eridivisie','Primeira Liga','Primera Division','FIFA World Cup']
 
-for i in range(len(data['competitions'])):
-    if(data['competitions'][i]['name'] not in free_tier_list):
+for i in range(len(data1['competitions'])):
+    if(data1['competitions'][i]['name'] not in free_tier_list):
         continue
-    comp_dict[data['competitions'][i]['name']] = data['competitions'][i]['id']
+    comp_dict[data1['competitions'][i]['name']] = data1['competitions'][i]['id']
 
 default = 'Select a Competition'
 options = [default]
@@ -133,18 +119,10 @@ options = [default]
 options = options + list(comp_dict.keys())
 svalue = st.sidebar.selectbox('',options,key = 4)
 
-#api request 2
-@st.cache(persist = True)
-def fetch_data2(param):
-    url = "http://api.football-data.org/v2/competitions/" + str(comp_dict[svalue]) + "/" + param
-    response = requests.request("GET", url, headers = headers,)
-    return response.json()
-
-
 if(svalue != default):
     st.title(svalue)   
     if(st.sidebar.checkbox('Team Info')):
-        data2 = fetch_data2("teams")
+        data2 = md.fetch_data2("teams",comp_dict,svalue)
         st.header('Number of teams: ' + str(data2['count']))
         col1, col2 = st.beta_columns(2)
         if(len(data2['teams'])):
@@ -186,7 +164,7 @@ if(svalue != default):
 
     if(st.sidebar.checkbox('Standings')):
         st.header('Standings: ')
-        data2 = fetch_data2("standings")
+        data2 = md.fetch_data2("standings",comp_dict,svalue)
         if(svalue != 'FIFA World Cup'):
             type = st.sidebar.radio('',['Total','Home','Away'])
             if(type == 'Total'):
@@ -260,8 +238,8 @@ if(svalue != default):
                     df.index = range(1,len(df) + 1)
                     st.table(df)
     if(st.sidebar.checkbox('Scorers')):
-        data2 = fetch_data2('scorers')
-        st.subheader('Top 10  Scorers:')
+        data2 = md.fetch_data2('scorers',comp_dict,svalue)
+        st.subheader('Top 10 Scorers:')
         df = pd.DataFrame()
         for i in range(len(data2['scorers'])):
             list = []
