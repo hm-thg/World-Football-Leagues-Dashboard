@@ -15,7 +15,7 @@ st.title('World Football Leagues Dashboard')
 st.sidebar.title('Widget Section')
 
 apilink = '[Football Data](https://www.football-data.org/)'
-with st.sidebar.beta_expander('About the project'):
+with st.sidebar.expander('About the project'):
     st.write('The idea behind this project was motivated by my love for football and curiosity for stats. This project uses RESTful API provided by ',apilink,' which provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.) in a machine-readable way.')
     st.write('Want to contribute?',githublink)
 
@@ -52,11 +52,11 @@ newwc = False
 
 st.sidebar.header('General Stats:\n')
 
-show_comp_stats = st.sidebar.checkbox('Country Wise Distribution',key = 1)
+show_comp_stats = st.sidebar.checkbox('Country Wise Distribution',key = 2)
 
 if(show_comp_stats):
     st.header('Number Of Competitions Per Country:\n')
-    chosen_nations = st.sidebar.multiselect('Choose Country',area_df['Country Name'],key = 1)
+    chosen_nations = st.sidebar.multiselect('Choose Country',area_df['Country Name'],key = 3)
     if(len(chosen_nations) == 0):
         st.write('Choose a country..')
     else:    
@@ -83,21 +83,21 @@ if(show_comp_stats):
             sns.despine(left = True)
             st.pyplot(fig)  
 
-show_leagues_per_continent = st.sidebar.checkbox('Football Leagues By Continent',key = 2)
+show_leagues_per_continent = st.sidebar.checkbox('Football Leagues By Continent',8)
 
 continents = ['Europe','Asia','Africa','North America','South America','Australia']
 
 if(show_leagues_per_continent):
-    choice = st.sidebar.selectbox('Choose Continent',continents,key = 2,)
+    choice = st.sidebar.selectbox('Choose Continent',continents,key = 4,)
     write = choice + '\'s football leagues: '
     st.header(write + '\n')
     md.leaguesDisplay(choice,data1)
 
-show_leagues_per_country = st.sidebar.checkbox('Football Leagues By Country',key = 3)
+show_leagues_per_country = st.sidebar.checkbox('Football Leagues By Country',key = 5)
 
 if(show_leagues_per_country):
     helper = list(area_df[~area_df['Country Name'].isin(continents)]['Country Name'])
-    choice = st.sidebar.selectbox('Choose Country',helper,key = 3,)
+    choice = st.sidebar.selectbox('Choose Country',helper,key = 6,)
     write = choice + '\'s football leagues: '
     st.header(write + '\n')
     md.leaguesDisplay(choice,data1)
@@ -117,14 +117,14 @@ default = 'Select a Competition'
 options = [default]
 
 options = options + list(comp_dict.keys())
-svalue = st.sidebar.selectbox('',options,key = 4)
+svalue = st.sidebar.selectbox('',options,key = 7)
 
 if(svalue != default):
     st.title(svalue)   
     if(st.sidebar.checkbox('Team Info')):
         data2 = md.fetch_data2("teams",comp_dict,svalue)
         st.header('Number of teams: ' + str(data2['count']))
-        col1, col2 = st.beta_columns(2)
+        col1, col2 = st.columns(2)
         if(len(data2['teams'])):
             for i in range(len(data2['teams'])):
                 if(i % 2):
@@ -162,94 +162,21 @@ if(svalue != default):
                         if(data2['teams'][i]['venue'] != None):
                             col2.write('Venue: ' + data2['teams'][i]['venue'])
 
-    if(st.sidebar.checkbox('Standings')):
-        st.header('Standings: ')
-        data2 = md.fetch_data2("standings",comp_dict,svalue)
-        if(svalue != 'FIFA World Cup'):
-            type = st.sidebar.radio('',['Total','Home','Away'])
-            if(type == 'Total'):
-                df = pd.DataFrame()
-                for i in range(len(data2['standings'][0]['table'])):
-                    list = []
-                    list.append(data2['standings'][0]['table'][i]['position']) 
-                    list.append(data2['standings'][0]['table'][i]['team']['name'])
-                    list.append(data2['standings'][0]['table'][i]['playedGames']) 
-                    list.append(data2['standings'][0]['table'][i]['form']) 
-                    list.append(data2['standings'][0]['table'][i]['won']) 
-                    list.append(data2['standings'][0]['table'][i]['lost']) 
-                    list.append(data2['standings'][0]['table'][i]['points']) 
-                    list.append(data2['standings'][0]['table'][i]['goalsFor']) 
-                    list.append(data2['standings'][0]['table'][i]['goalsAgainst']) 
-                    list.append(data2['standings'][0]['table'][i]['goalDifference'])
-                    df = df.append(pd.Series(list),ignore_index = True) 
-            elif(type == 'Home'):
-                df = pd.DataFrame()
-                for i in range(len(data2['standings'][1]['table'])):
-                    list = []
-                    list.append(data2['standings'][1]['table'][i]['position']) 
-                    list.append(data2['standings'][1]['table'][i]['team']['name'])
-                    list.append(data2['standings'][1]['table'][i]['playedGames']) 
-                    list.append(data2['standings'][1]['table'][i]['form']) 
-                    list.append(data2['standings'][1]['table'][i]['won']) 
-                    list.append(data2['standings'][1]['table'][i]['lost']) 
-                    list.append(data2['standings'][1]['table'][i]['points']) 
-                    list.append(data2['standings'][1]['table'][i]['goalsFor']) 
-                    list.append(data2['standings'][1]['table'][i]['goalsAgainst']) 
-                    list.append(data2['standings'][1]['table'][i]['goalDifference']) 
-                    df = df.append(pd.Series(list),ignore_index = True) 
-            else:
-                df = pd.DataFrame()
-                for i in range(len(data2['standings'][2]['table'])):
-                    list = []
-                    list.append(data2['standings'][2]['table'][i]['position']) 
-                    list.append(data2['standings'][2]['table'][i]['team']['name'])
-                    list.append(data2['standings'][2]['table'][i]['playedGames']) 
-                    list.append(data2['standings'][2]['table'][i]['form']) 
-                    list.append(data2['standings'][2]['table'][i]['won']) 
-                    list.append(data2['standings'][2]['table'][i]['lost']) 
-                    list.append(data2['standings'][2]['table'][i]['points']) 
-                    list.append(data2['standings'][2]['table'][i]['goalsFor']) 
-                    list.append(data2['standings'][2]['table'][i]['goalsAgainst']) 
-                    list.append(data2['standings'][2]['table'][i]['goalDifference']) 
-                    df = df.append(pd.Series(list),ignore_index = True) 
-            df.drop([0],axis = 1,inplace = True)
-            df.columns = ['Team Name','Matches Played','Last 5 Matches','Won','Lost','Points','Goals For','Goals Against','Difference']
-            df.index = range(1,len(df) + 1)
-            st.table(df)
-        else:
-                for j in range(0,len(data2['standings']),3):
-                    df = pd.DataFrame()
-                    for i in range(len(data2['standings'][j]['table'])):
-                        list = []
-                        list.append(data2['standings'][j]['table'][i]['position']) 
-                        list.append(data2['standings'][j]['table'][i]['team']['name'])
-                        list.append(data2['standings'][j]['table'][i]['playedGames']) 
-                        list.append(data2['standings'][j]['table'][i]['form']) 
-                        list.append(data2['standings'][j]['table'][i]['won']) 
-                        list.append(data2['standings'][j]['table'][i]['lost']) 
-                        list.append(data2['standings'][j]['table'][i]['points']) 
-                        list.append(data2['standings'][j]['table'][i]['goalsFor']) 
-                        list.append(data2['standings'][j]['table'][i]['goalsAgainst']) 
-                        list.append(data2['standings'][j]['table'][i]['goalDifference'])
-                        df = df.append(pd.Series(list),ignore_index = True) 
-                    st.subheader(data2['standings'][j]['group'])
-                    df.drop([0],axis = 1,inplace = True)
-                    df.columns = ['Team Name','Matches Played','Last 5 Matches','Won','Lost','Points','Goals For','Goals Against','Difference']
-                    df.index = range(1,len(df) + 1)
-                    st.table(df)
     if(st.sidebar.checkbox('Scorers')):
         data2 = md.fetch_data2('scorers',comp_dict,svalue)
         st.subheader('Top 10 Scorers:')
-        df = pd.DataFrame()
-        for i in range(len(data2['scorers'])):
-            list = []
-            list.append(data2['scorers'][i]['player']['name'])
-            list.append(data2['scorers'][i]['player']['nationality'])
-            list.append(data2['scorers'][i]['player']['position'])
-            list.append(data2['scorers'][i]['team']['name'])
-            list.append(data2['scorers'][i]['numberOfGoals'])
-            df = df.append(pd.Series(list),ignore_index = True)
-        df.index = range(1,len(df) + 1)
+        scorer_list = [
+        {
+            'Name': scorer['player']['name'],
+            'Nationality': scorer['player']['nationality'],
+            'Position': scorer['player']['position'],
+            'Team': scorer['team']['name'],
+            'Number of Goals': scorer['numberOfGoals']
+        }
+        for scorer in data2['scorers']
+        ]
+        df = pd.DataFrame(scorer_list)
+        df.index = range(1, len(df) + 1)
         df.columns = ['Name','Nationality','Position','Team','Number of Goals']
         st.table(df)
 
